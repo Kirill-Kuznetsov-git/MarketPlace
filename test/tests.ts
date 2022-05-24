@@ -1,19 +1,23 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 
 describe("Greeter", function () {
-  it("Should return the new greeting once it's changed", async function () {
-    const Greeter = await ethers.getContractFactory("Greeter");
-    const greeter = await Greeter.deploy("Hello, world!");
-    await greeter.deployed();
+  beforeEach(async function() {
+    const NFT721Factory = await ethers.getContractFactory("NFT721");
+    const NFT721 = await NFT721Factory.deploy("TestToken", "TT");
+  
+    const NFT1155Factory = await ethers.getContractFactory("NFT1155");
+    const NFT1155 = await NFT1155Factory.deploy("uri");
+  
+    const MarketPlaceFactory = await ethers.getContractFactory("NFT721");
+    const MarketPlace = await MarketPlaceFactory.deploy("TestToken", "TT");
 
-    expect(await greeter.greet()).to.equal("Hello, world!");
+    await NFT721.deployed();
+    await NFT1155.deployed();
+    await MarketPlace.deployed();
+  })
 
-    const setGreetingTx = await greeter.setGreeting("Hola, mundo!");
+  it("test", async function () {
 
-    // wait until the transaction is mined
-    await setGreetingTx.wait();
-
-    expect(await greeter.greet()).to.equal("Hola, mundo!");
   });
 });

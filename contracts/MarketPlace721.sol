@@ -3,6 +3,5 @@ pragma solidity ^0.8.0;
 
 import "./IMarketPlace.sol";
 
-contract MarketPlace is IMarketPlace{
-
+contract MarketPlace721 is IMarketPlace{
 }

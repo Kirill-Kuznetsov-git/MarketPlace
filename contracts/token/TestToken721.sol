@@ -16,10 +16,6 @@ contract TestToken721 is ERC721, AccessControl {
         return "ipfs://QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn/";
     }
 
-    function safeMint(address to, uint256 tokenId) public onlyRole(MINTER_ROLE) {
-        _safeMint(to, tokenId);
-    }
-
     function tokenURI(uint256 _tokenId) override public view returns (string memory) {
         return(
             string(
@@ -30,7 +26,9 @@ contract TestToken721 is ERC721, AccessControl {
         );
     }
 
-    // The following functions are overrides required by Solidity.
+    function mint(address to, uint256 tokenId) public onlyRole(MINTER_ROLE) {
+        _safeMint(to, tokenId);
+    }
 
     function supportsInterface(bytes4 interfaceId)
         public

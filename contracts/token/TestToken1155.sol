@@ -38,15 +38,6 @@ contract TestToken1155 is ERC1155, AccessControl {
         _mint(account, id, amount, data);
     }
 
-    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
-        public
-        onlyRole(MINTER_ROLE)
-    {
-        _mintBatch(to, ids, amounts, data);
-    }
-
-    // The following functions are overrides required by Solidity.
-
     function supportsInterface(bytes4 interfaceId)
         public
         view

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 interface IMarketPlace {
-    function createItem(address owner, uint256 tokenId) external;
+    function createItem(address owner, uint256 tokenId, string memory tokenURI) external;
 
     function listItem(uint256 tokenId, uint256 price) external;
 

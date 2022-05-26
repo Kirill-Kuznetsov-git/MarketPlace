@@ -4,20 +4,34 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-
-contract TestToken1155 is ERC1155, AccessControl {
-    bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+contract TestToken1155 is ERC1155 {
+    address private owner;
+    mapping(address => bool) private isMinter;
     mapping(uint256 => string) private uris;
     string internal uriBase;
 
-    constructor() ERC1155("ipfs://QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn/") {
-        uriBase = "ipfs://QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn/";
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(URI_SETTER_ROLE, msg.sender);
-        _grantRole(MINTER_ROLE, msg.sender);
+    modifier OnlyOwner(){
+        require(msg.sender == owner, "now owner");
+        _;
+    }
+
+    modifier OnlyMinter(){
+        require(isMinter[msg.sender] == true, "not minter");
+        _;
+    }
+
+    constructor() ERC1155("ipfs://") {
+        uriBase = "ipfs://";
+        owner = msg.sender;
+        isMinter[msg.sender] = true;
+    }
+
+    function setMinterRole(address account) public OnlyOwner {
+        isMinter[account] = true;
+    }
+
+    function removeMinterRole(address account) public OnlyOwner {
+        isMinter[account] = false;
     }
 
     function uri(uint256 tokenId) override public view returns (string memory) {
@@ -31,17 +45,17 @@ contract TestToken1155 is ERC1155, AccessControl {
         );
     }
 
-    function setURI(string memory newuri) public onlyRole(URI_SETTER_ROLE) {
+    function setURI(string memory newuri) public OnlyOwner {
         _setURI(newuri);
     }
 
-    function mint(address account, uint256 id, uint256 amount, bytes memory data, string memory _tokenURI) public onlyRole(MINTER_ROLE) {
+    function mint(address account, uint256 id, uint256 amount, bytes memory data, string memory _tokenURI) public OnlyMinter {
         require(bytes(uris[id]).length == 0, "ERC721: token already minted");
         uris[id] = _tokenURI;
         _mint(account, id, amount, data);
     }
 
-    function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(MINTER_ROLE) {
+    function mint(address account, uint256 id, uint256 amount, bytes memory data) public OnlyMinter {
         require(bytes(uris[id]).length != 0, "ERC721: token does not exits");
         _mint(account, id, amount, data);
     }
@@ -49,7 +63,7 @@ contract TestToken1155 is ERC1155, AccessControl {
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC1155, AccessControl)
+        override(ERC1155)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);

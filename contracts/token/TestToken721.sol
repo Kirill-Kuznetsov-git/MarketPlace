@@ -2,19 +2,33 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract TestToken721 is ERC721, AccessControl {
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+contract TestToken721 is ERC721 {
+    address private owner;
+    mapping(address => bool) private isMinter;
     mapping(uint256 => string) private uris;
 
-    constructor() ERC721("TestToken721", "TT") {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(MINTER_ROLE, msg.sender);
+    modifier OnlyOwner(){
+        require(msg.sender == owner, "now owner");
+        _;
     }
 
-    function setMinterRole(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        _grantRole(MINTER_ROLE, account);
+    modifier OnlyMinter(){
+        require(isMinter[msg.sender] == true, "not minter");
+        _;
+    }
+
+    constructor() ERC721("TestToken721", "TT721") {
+        owner = msg.sender;
+        isMinter[msg.sender] = true;
+    }
+
+    function setMinterRole(address account) public OnlyOwner {
+        isMinter[account] = true;
+    }
+
+    function removeMinterRole(address account) public OnlyOwner {
+        isMinter[account] = false;
     }
 
     function _baseURI() internal pure override returns (string memory) {
@@ -32,7 +46,7 @@ contract TestToken721 is ERC721, AccessControl {
         );
     }
 
-    function mint(address to, uint256 tokenId, string memory _tokenURI) public onlyRole(MINTER_ROLE) {
+    function mint(address to, uint256 tokenId, string memory _tokenURI) public OnlyMinter {
          require(!_exists(tokenId), "ERC721: token already minted");
          uris[tokenId] = _tokenURI;
         _safeMint(to, tokenId);
@@ -41,7 +55,7 @@ contract TestToken721 is ERC721, AccessControl {
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC721, AccessControl)
+        override(ERC721)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);

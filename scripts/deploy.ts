@@ -24,6 +24,8 @@ async function main() {
   const MarketPlace1155 = await MarketPlaceFactory1155.deploy(process.env.TEST_TOKEN_ADDRESS as string, TestToken1155.address);
 
   await MarketPlace1155.deployed();
+  await TestToken721.setMinterRole(MarketPlace721.address);
+  await TestToken1155.setMinterRole(MarketPlace1155.address);
   console.log("MarketPlace1155 deployed to:", MarketPlace1155.address);
 }
 

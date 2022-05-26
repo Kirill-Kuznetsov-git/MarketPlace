@@ -56,6 +56,7 @@ contract MarketPlace721 is IMarketPlace, IERC721Receiver {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         token.mint(owner, newItemId, tokenURI);
+        emit ItemCreated(owner, newItemId);
     }
 
     function listItem(uint256 tokenId, uint256 price) override external {
@@ -65,6 +66,7 @@ contract MarketPlace721 is IMarketPlace, IERC721Receiver {
         sellers[tokenId] = msg.sender;
         prices[tokenId] = price;
         sellTypes[tokenId] = SellType.SELL;
+        emit ItemListed(msg.sender, tokenId, price);
     }
 
     function cancel(uint256 tokenId) override external TokenForSale(tokenId) {
@@ -72,6 +74,7 @@ contract MarketPlace721 is IMarketPlace, IERC721Receiver {
         token.approve(msg.sender, tokenId);
         token.transferFrom(address(this), msg.sender, tokenId);
         sellTypes[tokenId] = SellType.FREE;
+        emit ItemCanceled(sellers[tokenId], tokenId);
     }
 
     function buyItem(uint256 tokenId) override external TokenForSale(tokenId) {
@@ -82,9 +85,10 @@ contract MarketPlace721 is IMarketPlace, IERC721Receiver {
         valueToken.transfer(sellers[tokenId], prices[tokenId]);
         token.approve(msg.sender, tokenId);
         token.transferFrom(address(this), msg.sender, tokenId);
+        emit ItemBuyed(msg.sender, tokenId, prices[tokenId]);
     }
 
-    function listItemOnAction(uint256 tokenId, uint256 minPrice) override external {
+    function listItemOnAuction(uint256 tokenId, uint256 minPrice) override external {
         require(token.ownerOf(tokenId) == msg.sender, "You are not owner of token");
         require(auctions[tokenId].ended == false, "old auction did not ended");
         require(sellTypes[tokenId] == SellType.FREE, "token must be free");
@@ -94,6 +98,7 @@ contract MarketPlace721 is IMarketPlace, IERC721Receiver {
         sellTypes[tokenId] = SellType.AUCTION;
         Auction memory newAuction = Auction(block.timestamp, false, address(0));
         auctions[tokenId] = newAuction;
+        emit ItemListedOnAuction(msg.sender, tokenId, minPrice);
     }
 
     function makeBid(uint256 tokenId, uint256 price) override external TokenForAuction(tokenId) {
@@ -105,13 +110,16 @@ contract MarketPlace721 is IMarketPlace, IERC721Receiver {
             valueToken.transfer(auctions[tokenId].pretendent, prices[tokenId]);
         }
         valueToken.transferFrom(msg.sender, address(this), price);
+        uint256 oldPrice = prices[tokenId];
         prices[tokenId] = price;
         auctions[tokenId].pretendent = msg.sender;
+        emit BidMaked(msg.sender, tokenId, oldPrice, price);
     }
 
     function finishAuction(uint256 tokenId) override external {
         require(auctions[tokenId].startAt + DURATION < block.timestamp, "Auction not ended yet");
         require(auctions[tokenId].ended == false, "already ended");
+        require(sellers[tokenId] == msg.sender, "You are not an owner of auction");
         if (auctions[tokenId].pretendent == address(0)){
             token.approve(sellers[tokenId], tokenId);
             token.transferFrom(address(this), sellers[tokenId], tokenId);
@@ -119,12 +127,12 @@ contract MarketPlace721 is IMarketPlace, IERC721Receiver {
         else{
             token.approve(auctions[tokenId].pretendent, tokenId);
             token.transferFrom(address(this), auctions[tokenId].pretendent, tokenId);
-
             valueToken.transfer(sellers[tokenId], prices[tokenId]);
         }
 
         sellTypes[tokenId] = SellType.FREE;
         auctions[tokenId].ended = true;
+        emit AuctionFinished(msg.sender, tokenId, auctions[tokenId].pretendent == address(0) ? 0 : prices[tokenId]);
     }
 
 

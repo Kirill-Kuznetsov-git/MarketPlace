@@ -7,6 +7,15 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 
+import "./tasks/addItem"
+import "./tasks/buyItem"
+import "./tasks/cancel"
+import "./tasks/createItem"
+import "./tasks/finishAuction"
+import "./tasks/listItem"
+import "./tasks/listitemOnAuction"
+import "./tasks/makeBid"
+
 dotenv.config();
 
 // This is a sample Hardhat task. To learn how to create your own go to

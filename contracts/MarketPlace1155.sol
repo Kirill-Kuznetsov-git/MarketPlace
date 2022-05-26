@@ -51,10 +51,13 @@ contract MarketPlace1155 is IMarketPlace, ERC1155Holder {
         _;
     }
     
-    function createItem(address owner, uint256 tokenId, string memory) override external {
-        while (_tokenIds.current() <= tokenId){
-            _tokenIds.increment();
-        }
+    function createItem(address owner, string memory tokenURI) override external {
+        _tokenIds.increment();
+        uint256 newItemId = _tokenIds.current();
+        token.mint(owner, newItemId, 1, "", tokenURI);
+    }
+
+    function addItem(address owner, uint256 tokenId) external {
         token.mint(owner, tokenId, 1, "");
     }
 

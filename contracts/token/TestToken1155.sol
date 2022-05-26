@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 contract TestToken1155 is ERC1155, AccessControl {
     bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    mapping(uint256 => string) private uris;
     string internal uriBase;
 
     constructor() ERC1155("ipfs://QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn/") {
@@ -24,9 +25,9 @@ contract TestToken1155 is ERC1155, AccessControl {
             string(
                 abi.encodePacked(
                 uriBase, 
-                Strings.toString(tokenId), 
-                ".json"
-            ))
+                uris[tokenId]
+                )
+            )
         );
     }
 
@@ -34,7 +35,14 @@ contract TestToken1155 is ERC1155, AccessControl {
         _setURI(newuri);
     }
 
+    function mint(address account, uint256 id, uint256 amount, bytes memory data, string memory _tokenURI) public onlyRole(MINTER_ROLE) {
+        require(bytes(uris[id]).length == 0, "ERC721: token already minted");
+        uris[id] = _tokenURI;
+        _mint(account, id, amount, data);
+    }
+
     function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyRole(MINTER_ROLE) {
+        require(bytes(uris[id]).length != 0, "ERC721: token does not exits");
         _mint(account, id, amount, data);
     }
 

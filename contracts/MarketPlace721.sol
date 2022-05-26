@@ -52,7 +52,7 @@ contract MarketPlace721 is IMarketPlace, IERC721Receiver {
         token = _token;
     }
 
-    function createItem(address owner, uint256, string memory tokenURI) override external {
+    function createItem(address owner, string memory tokenURI) override external {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
         token.mint(owner, newItemId, tokenURI);

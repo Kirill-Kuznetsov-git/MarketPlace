@@ -61,7 +61,6 @@ contract MarketPlace721 is IMarketPlace, IERC721Receiver {
 
     function listItem(uint256 tokenId, uint256 price) override external {
         require(token.ownerOf(tokenId) == msg.sender, "You are not owner of token");
-        require(sellTypes[tokenId] == SellType.FREE, "token must be free");
         token.transferFrom(msg.sender, address(this), tokenId);
         sellers[tokenId] = msg.sender;
         prices[tokenId] = price;
@@ -90,8 +89,6 @@ contract MarketPlace721 is IMarketPlace, IERC721Receiver {
 
     function listItemOnAuction(uint256 tokenId, uint256 minPrice) override external {
         require(token.ownerOf(tokenId) == msg.sender, "You are not owner of token");
-        require(auctions[tokenId].ended == false, "old auction did not ended");
-        require(sellTypes[tokenId] == SellType.FREE, "token must be free");
         token.transferFrom(msg.sender, address(this), tokenId);
         sellers[tokenId] = msg.sender;
         prices[tokenId] = minPrice;
@@ -103,7 +100,6 @@ contract MarketPlace721 is IMarketPlace, IERC721Receiver {
 
     function makeBid(uint256 tokenId, uint256 price) override external TokenForAuction(tokenId) {
         require(valueToken.balanceOf(msg.sender) >= price, "not enough funds");
-        require(auctions[tokenId].pretendent == address(0) || (auctions[tokenId].pretendent != address(0) && valueToken.allowance(msg.sender, address(this)) >= price), "You are not approved tokens");
         require(prices[tokenId] < price, "Too low price");
         require(auctions[tokenId].startAt + DURATION >= block.timestamp, "Auction has already ended");
         if (auctions[tokenId].pretendent != address(0)) {

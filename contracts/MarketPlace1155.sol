@@ -97,8 +97,7 @@ contract MarketPlace1155 is IMarketPlace, ERC1155Holder {
 
     function listItemOnAuction(uint256 tokenId, uint256 minPrice) override external {
         require(token.balanceOf(msg.sender, tokenId) >= 1, "You are not owner of token");
-        require(auctions[tokenId].ended == false, "old auction did not ended");
-        require(sellTypes[tokenId] == SellType.FREE, "token must be free");
+        require(auctions[tokenId].ended == true || (auctions[tokenId].ended == false && auctions[tokenId].startAt == 0), "old auction did not ended");
         token.safeTransferFrom(msg.sender, address(this), tokenId, 1, "");
         sellers[tokenId] = msg.sender;
         prices[tokenId] = minPrice;
@@ -110,7 +109,6 @@ contract MarketPlace1155 is IMarketPlace, ERC1155Holder {
 
     function makeBid(uint256 tokenId, uint256 price) override external TokenForAuction(tokenId) {
         require(valueToken.balanceOf(msg.sender) >= price, "not enough funds");
-        require(auctions[tokenId].pretendent == address(0) || (auctions[tokenId].pretendent != address(0) && valueToken.allowance(msg.sender, address(this)) >= price), "You are not approved tokens");
         require(prices[tokenId] < price, "Too low price");
         require(auctions[tokenId].startAt + DURATION >= block.timestamp, "Auction has already ended");
         if (auctions[tokenId].pretendent != address(0)) {
@@ -126,6 +124,7 @@ contract MarketPlace1155 is IMarketPlace, ERC1155Holder {
     function finishAuction(uint256 tokenId) override external {
         require(auctions[tokenId].startAt + DURATION < block.timestamp, "Auction not ended yet");
         require(auctions[tokenId].ended == false, "already ended");
+        require(sellers[tokenId] == msg.sender, "You are not an owner of auction");
         if (auctions[tokenId].pretendent == address(0)){
             token.setApprovalForAll(sellers[tokenId], true);
             token.safeTransferFrom(address(this), sellers[tokenId], tokenId, 1, "");

@@ -1,12 +1,11 @@
 import "@nomiclabs/hardhat-waffle";
 import {HardhatRuntimeEnvironment} from "hardhat/types";
-import { IERC20 } from "../typechain";
 
 
 export async function getTestToken(hre: HardhatRuntimeEnvironment) {
     const accounts = await hre.ethers.getSigners();
     const signer = accounts[0];
-    return <IERC20>(await hre.ethers.getContractAt("IERC20", process.env.TEST_TOKEN_ADDRESS as string));
+    return await hre.ethers.getContractAt("IERC20", process.env.TEST_TOKEN_ADDRESS as string);
 }
 
 export async function getTestToken721(hre: HardhatRuntimeEnvironment) {

@@ -9,7 +9,7 @@ contract TestToken721 is ERC721 {
     mapping(uint256 => string) private uris;
 
     modifier OnlyOwner(){
-        require(msg.sender == owner, "now owner");
+        require(msg.sender == owner, "not owner");
         _;
     }
 
@@ -50,14 +50,5 @@ contract TestToken721 is ERC721 {
          require(!_exists(tokenId), "ERC721: token already minted");
          uris[tokenId] = _tokenURI;
         _safeMint(to, tokenId);
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
     }
 }

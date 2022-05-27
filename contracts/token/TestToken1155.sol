@@ -11,7 +11,7 @@ contract TestToken1155 is ERC1155 {
     string internal uriBase;
 
     modifier OnlyOwner(){
-        require(msg.sender == owner, "now owner");
+        require(msg.sender == owner, "not owner");
         _;
     }
 
@@ -46,7 +46,7 @@ contract TestToken1155 is ERC1155 {
     }
 
     function setURI(string memory newuri) public OnlyOwner {
-        _setURI(newuri);
+        uriBase = newuri;
     }
 
     function mint(address account, uint256 id, uint256 amount, bytes memory data, string memory _tokenURI) public OnlyMinter {
@@ -58,14 +58,5 @@ contract TestToken1155 is ERC1155 {
     function mint(address account, uint256 id, uint256 amount, bytes memory data) public OnlyMinter {
         require(bytes(uris[id]).length != 0, "ERC721: token does not exits");
         _mint(account, id, amount, data);
-    }
-
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC1155)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
     }
 }

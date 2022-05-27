@@ -29,5 +29,17 @@ npx hardhat createitem --nft <number(721 or 1155):param> --uri <string hash from
 npx hardhat finishauction --nft <number(721 or 1155):param> --id <TokenId:param>
 npx hardhat listitem --nft <number(721 or 1155):param> --id <TokenId:param> --price <int price:param>
 npx hardhat listitemonauction --nft <number(721 or 1155):param> --id <TokenId:param> --price <int price:param>
-npx hardhat makemid --nft <number(721 or 1155):param> --id <TokenId:param> --price <int price:param>
+npx hardhat makebid --nft <number(721 or 1155):param> --id <TokenId:param> --price <int price:param>
+```
+
+Examples of usage:
+```
+npx hardhat createitem --nft 721 --uri Qmd4pddQZkrzSVmogU1QrGhKWK5MfgjVNyKscM1XfGnBvj --network goerli
+npx hardhat listitem --nft 721 --id 1 --price 100
+npx hardhat buyitem --nft 721 --id 1
+npx hardhat cansel --nft 721 --id 1
+nxp hardhat additem --id 1(add to nft 1155 if exist, otherwise throw error)
+npx hardhat listitemonauction --nft 721 --id 1 --price 100
+npx hardhat makebid --nft 721 --id 1 --price 200
+npx hardhat finishauction --nft 721 --id 1
 ```
